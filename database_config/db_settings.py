@@ -2,85 +2,59 @@ import asyncpg
 import logging
 from database_config.config import DB_CONFIG
 
-class DatabaseError(Exception):
-    """Custom exception for handling database errors."""
-    pass
 
-class AsyncDatabase:
+class Database:
     def __init__(self):
-        self.conn = None
-        self.transaction = None
+        self.pool = None
 
-    async def __aenter__(self):
-        try:
-            self.conn = await asyncpg.connect(**DB_CONFIG)
-            self.transaction = self.conn.transaction()
-            await self.transaction.start()
-        except Exception as e:
-            logging.error(f"Error connecting to the database: {e}")
-            raise DatabaseError("Failed to connect to the database.")
-        return self
+    async def create_pool(self):
+        # We create the pool once.
+        # min_size=1, max_size=10 is usually good for a bot.
+        self.pool = await asyncpg.create_pool(min_size=1, max_size=10, **DB_CONFIG)
+        logging.info("Database pool created")
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        try:
-            if exc_type is not None:
-                await self.transaction.rollback()
-                logging.error(f"Error in DB operation: {exc_val}")
-            else:
-                await self.transaction.commit()
-        finally:
-            if self.conn is not None:
-                await self.conn.close()
+    async def close_pool(self):
+        if self.pool:
+            await self.pool.close()
+            logging.info("Database pool closed")
 
-    async def execute(self, query, params=None):
-        """Execute a query (INSERT, UPDATE, DELETE)"""
-        try:
-            await self.conn.execute(query, *params)
-        except Exception as e:
-            logging.error(f"Exception during query execution: {e}")
-            raise DatabaseError(f"Failed to execute query: {query}")
+    async def get_connection(self):
+        if not self.pool:
+            await self.create_pool()
+        return self.pool.acquire()
 
-    async def fetchone(self, query, params=None):
-        """Fetch a single row from the database"""
-        try:
-            return await self.conn.fetchrow(query, *params)
-        except Exception as e:
-            logging.error(f"Exception during fetchone: {e}")
-            raise DatabaseError("Failed to fetch val.")
 
-    async def fetchall(self, query, params=None):
-        """Fetch multiple rows from the database"""
-        try:
-            return await self.conn.fetch(query, *params)
-        except Exception as e:
-            logging.error(f"Exception during fetchall: {e}")
-            raise DatabaseError("Failed to fetch val.")
+# Create a single global instance
+db = Database()
 
-    async def execute_and_fetch(self, query, params=None):
-        """Execute a query (INSERT, UPDATE, DELETE) and fetch the result"""
-        try:
-            return await self.conn.fetchrow(query, *params)
-        except Exception as e:
-            logging.error(f"Exception during execute_and_fetch: {e}")
-            raise DatabaseError(f"Failed to execute query: {query}")
 
+# We update execute_query to use the pool.
+# This keeps your existing code working without changing every model file.
 async def execute_query(query, params=None, fetch=None):
-    """Run async queries properly"""
-    async with AsyncDatabase() as db:
-        params = params or ()
-        print(query)
-        print(params)
-        print(fetch)
-        data = None
-        if fetch == "all":
-            data = await db.fetchall(query, params)
-        elif fetch == "one":
-            data = await db.fetchone(query, params)
-        elif fetch == "return":
-            data = await db.execute_and_fetch(query, params)
-        else:
-            await db.execute(query, params)
+    params = params or ()
 
-        print(data)
+    # Ensure pool exists
+    if not db.pool:
+        await db.create_pool()
 
-        return data
+    async with db.pool.acquire() as connection:
+        try:
+            if fetch == "all":
+                result = await connection.fetch(query, *params)
+                return result
+            elif fetch == "one":
+                result = await connection.fetchrow(query, *params)
+                return result
+            elif fetch == "return":
+                # execute_and_fetch replacement
+                result = await connection.fetchrow(query, *params)
+                return result
+            else:
+                # Standard execute (INSERT, UPDATE, DELETE)
+                await connection.execute(query, *params)
+                return None
+        except Exception as e:
+            logging.error(f"DB Error: {e} | Query: {query}")
+            # Optional: Re-raise the error if you want the bot to know it failed
+            # raise e
+            return None

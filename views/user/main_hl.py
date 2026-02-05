@@ -40,6 +40,25 @@ async def services_menu_caller_f(call: CallbackQuery, state: FSMContext):
     await services_menu_f(mess=call.message, u=call.from_user)
 
 
+@router.callback_query(F.data.startswith("cancel_"), RoleFilter([1]))
+async def canceller_f(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
+    await vld(o=call, u=call.from_user)
+    __, type_d = call.data.split("_", 1)
+
+    if type_d == "event":
+        await call.message.edit_text(
+            text=_("I believe you, you will find the appropriate way to participate in this event")+" 😉"
+        )
+        await services_menu_f(mess=call.message, u=call.from_user)
+
+    elif type_d == "essay":
+        await call.message.edit_text(
+            text=_("I believe you, you will find the appropriate way to have essay lesson")+" 😉"
+        )
+        await services_menu_f(mess=call.message, u=call.from_user)
+
+
 @router.callback_query(F.data.startswith("pager_"), RoleFilter([1]))
 async def pager_f(call: types.CallbackQuery):
     await vld(o=call, u=call.from_user)

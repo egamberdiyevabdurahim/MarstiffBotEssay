@@ -5,6 +5,7 @@ from aiogram import types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
+from database_config.db_settings import db
 from views.admin import (
     accept_decline_payment_hl, main_hl as main_hl_admin, event_mgmt_hl,
 )
@@ -49,6 +50,7 @@ async def main():
     await dp.start_polling(bot)
 
 async def init():
+    await db.create_pool()
     schedule.every().day.at("19:00").do(lambda: asyncio.create_task(dump_and_send()))
     await asyncio.gather(main(), schedule_task_for_inactivate())
 

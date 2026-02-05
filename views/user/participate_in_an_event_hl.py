@@ -93,7 +93,7 @@ async def participate_in_an_event_payment_f(call: types.CallbackQuery, state: FS
                     _(f"Believe me, it's going to be your best <b>investment</b> for yourself")+" 😉\n\n"+
                     _("Card number")+f": <code>{card.val}</code>\n\n"+
                     _("After payment, you should send proof. It can be cheque image/file"))
-            markup = await cancel_pay_later_kb(lang=call.from_user.language_code, ex="participate_in_an_event_f")
+            markup = await cancel_pay_later_kb(lang=call.from_user.language_code, ex="event")
 
             try:
                 await call.message.edit_text(
