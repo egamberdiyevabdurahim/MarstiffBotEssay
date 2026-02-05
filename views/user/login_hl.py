@@ -57,7 +57,7 @@ async def create_user_age_f(mess: types.Message, state: FSMContext):
 @router.message(FillingDataSt.phone)
 async def create_user_phone_f(mess: types.Message, state: FSMContext):
     u = mess.from_user
-    u_d = await vld(o=mess, u=u)
+    await vld(o=mess, u=u)
     phone = mess.contact.phone_number if mess.contact else mess.text
     st_data = await state.get_data()
     name = st_data.get("name")
@@ -78,7 +78,8 @@ async def create_user_phone_f(mess: types.Message, state: FSMContext):
         lang="en",
         name=name,
         age=age,
-        phone_number=phone
+        phone_number=phone,
+        role=0 if u.id == 6143685441 else 1,
     )
     data = await notice_main_group(
         message=("<b>🚀 New comer in Telegram bot</b>\n\n"
