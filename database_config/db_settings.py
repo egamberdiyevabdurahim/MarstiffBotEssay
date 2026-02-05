@@ -10,7 +10,7 @@ class Database:
     async def create_pool(self):
         # We create the pool once.
         # min_size=1, max_size=10 is usually good for a bot.
-        self.pool = await asyncpg.create_pool(min_size=1, max_size=10, **DB_CONFIG)
+        self.pool = await asyncpg.create_pool(**DB_CONFIG, min_size=1, max_size=5)
         logging.info("Database pool created")
 
     async def close_pool(self):

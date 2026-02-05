@@ -9,6 +9,7 @@ from utils.message_deleter import message_deleter
 
 USER_CACHE = {}
 CACHE_TTL = 300
+MAX_CACHE_SIZE = 1000
 
 
 async def vld(
@@ -56,9 +57,14 @@ async def vld(
             current_time = time.time()
 
             if u_id in USER_CACHE:
-                cached_user = USER_CACHE[u_id]
-                if cached_user["expires"] > current_time:
-                    return cached_user["data"]
+                cached = USER_CACHE[u_id]
+                if cached["expires"] > current_time:
+                    return cached["data"]
+                else:
+                    del USER_CACHE[u_id]
+
+            if len(USER_CACHE) > MAX_CACHE_SIZE:
+                USER_CACHE.clear()
 
             user = await User.get_data(chat_id=u.id)
 
