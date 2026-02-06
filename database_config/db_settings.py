@@ -8,9 +8,14 @@ class Database:
         self.pool = None
 
     async def create_pool(self):
-        # We create the pool once.
-        # min_size=1, max_size=10 is usually good for a bot.
-        self.pool = await asyncpg.create_pool(**DB_CONFIG, min_size=1, max_size=5)
+        self.pool = await asyncpg.create_pool(
+            **DB_CONFIG,
+            min_size=5,  # Increased from 1
+            max_size=30,  # Increased from 5 (for 1000+ users)
+            max_inactive_connection_lifetime=60,  # Close idle connections
+            timeout=30,  # Connection timeout
+            command_timeout=60,  # Query timeout
+        )
         logging.info("Database pool created")
 
     async def close_pool(self):

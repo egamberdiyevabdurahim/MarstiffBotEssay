@@ -1,15 +1,9 @@
-import time
-
 import aiogram.types
 from aiogram.types import Message, CallbackQuery
 
 from loader import User
 from utils.logger import logger, error_logger
 from utils.message_deleter import message_deleter
-
-USER_CACHE = {}
-CACHE_TTL = 300
-MAX_CACHE_SIZE = 1000
 
 
 async def vld(
@@ -54,25 +48,7 @@ async def vld(
                 await message_deleter(u_id=u_id, message_id=o.message.message_id - 2)
 
         if r_u:
-            current_time = time.time()
-
-            if u_id in USER_CACHE:
-                cached = USER_CACHE[u_id]
-                if cached["expires"] > current_time:
-                    return cached["data"]
-                else:
-                    del USER_CACHE[u_id]
-
-            if len(USER_CACHE) > MAX_CACHE_SIZE:
-                USER_CACHE.clear()
-
             user = await User.get_data(chat_id=u.id)
-
-            if user:
-                USER_CACHE[u_id] = {
-                    "data": user,
-                    "expires": current_time + CACHE_TTL
-                }
 
             return user
         return None
