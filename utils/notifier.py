@@ -1,7 +1,7 @@
 from asyncio import sleep
 from aiogram import Bot
 
-from database_config.config import DEVELOPER_ID, GROUP_ID, SECOND_GROUP_ID, TOKEN
+from database_config.config import DEVELOPER_ID, GROUP_ID, TOKEN, DEVELOPERS_GROUP_ID
 from loader import TGGroup, TGGroupSection
 from utils.additions import tas_t
 
@@ -72,7 +72,7 @@ async def notice_second_group(message, count: int = 1):
     try:
         await bot.send_message(
             text=message,
-            chat_id=SECOND_GROUP_ID,
+            chat_id=DEVELOPERS_GROUP_ID,
             parse_mode="HTML"
         )
     except Exception as e:
