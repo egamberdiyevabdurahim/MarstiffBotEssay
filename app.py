@@ -6,6 +6,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
 from database_config.db_settings import db
+from filters.rate_limiter import RateLimiter
 from views.admin import (
     accept_decline_payment_hl, main_hl as main_hl_admin, event_mgmt_hl,
 )
@@ -47,6 +48,9 @@ async def main():
         participate_in_an_event_hl.router,
     )
     # dp.update.outer_middleware(middleware=ErrorLoggingMiddleware())
+    ratelimiter = RateLimiter(bot=bot)
+    dp.message.middleware(ratelimiter)
+    dp.callback_query.middleware(ratelimiter)
     await dp.start_polling(bot)
 
 async def init():
