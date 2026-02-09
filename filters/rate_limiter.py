@@ -158,12 +158,12 @@ class RateLimiter(BaseMiddleware):
                 # Send user feedback
                 if isinstance(event, Message):
                     await event.answer(
-                        f"⏳ Пожалуйста, подождите {retry_after} секунд перед следующим действием.\n"
-                        f"Это помогает боту работать быстрее для всех студентов! 🚀"
+                        f"⏳ Just a moment — wait {int(retry_after)} seconds 😊\n"
+                        f"You're not alone here!"
                     )
                 elif isinstance(event, CallbackQuery):
                     await event.answer(
-                        f"Подождите {retry_after} секунд ⏳",
+                        f"⏳ Slow down! Try again in {int(retry_after)} seconds.",
                         show_alert=True
                     )
 
