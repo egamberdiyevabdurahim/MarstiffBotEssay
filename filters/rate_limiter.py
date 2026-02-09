@@ -7,7 +7,7 @@ from aiogram.types import TelegramObject, Message, CallbackQuery, User
 from typing import Callable, Dict, Any, Awaitable, List
 from collections import defaultdict
 
-from database_config.config import ADMINISTRATION_GROUP_ID
+from database_config.config import DEVELOPERS_GROUP_ID
 
 
 class RateLimiter(BaseMiddleware):
@@ -87,7 +87,7 @@ class RateLimiter(BaseMiddleware):
             asyncio.create_task(
                 asyncio.wait_for(
                     self.bot.send_message(
-                        chat_id=ADMINISTRATION_GROUP_ID,
+                        chat_id=DEVELOPERS_GROUP_ID,
                         text=user_info,
                         parse_mode="HTML",
                         message_thread_id=5
